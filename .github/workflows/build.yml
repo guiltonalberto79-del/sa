@@ -1,0 +1,31 @@
+name: Build SGI Integra Completo
+on: [push]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Configurar Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Instalar tudo que o projeto precisa
+      run: |
+        python -m pip install --upgrade pip
+        # Instala todas as dependências de uma vez
+        pip install flet flet-desktop pyinstaller
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Compilar com coleta de dependências
+      run: |
+        # O --collect-all resolve o erro do flet que apareceu no seu log
+        pyinstaller --onefile --noconsole --collect-all flet main.py --name "SGI_Integra"
+
+    - name: Guardar o Executável
+      uses: actions/upload-artifact@v4
+      with:
+        name: SGI_Integra_Completo
+        path: dist/SGI_Integra.exe
